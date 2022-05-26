@@ -1,0 +1,58 @@
+start = template @@ 1.0;
+template = template smartytag @@ 0.95 | template "{literal}" template "{/literal} \n" @@ 0.01 | " " @@ 0.04;
+smartytag = "{" tagbody modifierlist"} \n" @@ 0.25 | "{" tag modifierlist"} \n" @@ 0.3 | "{assign \"" name "\" \"" text "\"} \n" @@ 0.07 | "{*" text "*}\n" @@ 0.05 | "{block \""text"\"}\n" smartytag "{/block}\n" @@ 0.04 | "{capture " name "}\n" smartytag "\n{/capture}\n" @@ 0.05 | "{for $var=0 to 6}\n" smartytag "\n{/for}\n" @@ 0.01 | "{foreach $vars as $var}\n" smartytag? " $var "? "\n{/foreach}\n" @@ 0.01 | "{if " dollarid " " slogop " '" /[0-9a-zA-Z_ <>`@$%^&]/* "'" "}\n" smartytag ("\n{elseif " dollarid " " slogop "'" /[0-9a-zA-Z_ <>`@$%^&]/* "'" "}\n" smartytag)? ("\n{else}\n" smartytag)? "\n{/if}\n" @@ 0.04| "{setfilter " realmodifierss modifierlist* "}\n" smartytag "\n{/setfilter}\n" @@ 0.01 | "{html_select_date}" @@ 0.02 | "{fetch file='" /[0-9a-zA-Z_ <>`@$%^&]/+ "'}" @@ 0.02 | "{eval var=" dollarid modifierlist "}\n" @@ 0.05 | "{strip}\n" smartytag "{/strip}\n" @@ 0.08;
+tagbody = output @@ 0.8| dollarid " = " output @@ 0.1| varindexed " = " output @@ 0.1;
+output = variable @@ 0.3 | value @@ 0.4 | expr @@ 0.3;
+tag = dollarid @@ 1.0; 
+
+expr = value @@ 0.3 | ternary @@ 0.2 | expr math value_num @@ 0.1 | expr unimath value_num @@ 0.1 | expr tlop value_num @@ 0.1 | expr lop expr @@ 0.1 | expr singlecond @@ 0.05 | "(" expr ")" @@ 0.05;
+ternary = "(" expr ")" " ? " dollarid " : (" expr ")" @@ 0.2 | "(" expr ")" " ? " "(" expr ") : (" expr ")" @@ 0.8;
+value_num = variable @@ 0.64| unimath value_num @@ 0.02| not value_num @@ 0.02| typecast value_num @@ 0.05| variable incdec @@ 0.08| hex @@ 0.08 | integer @@ 0.05| integer "." integer @@ 0.05| variable " instanceof " variable @@ 0.01 ;
+value_str = variable @@ 0.45| typecast value @@ 0.1| integer @@ 0.1| integer "." integer @@ 0.1| singlequotestring @@ 0.15| doublequoted_with_quotes @@ 0.1;
+
+
+value = value_str @@ 0.5 | value_num @@ 0.5;
+variable = dollarid @@ 0.65 | varindexed @@ 0.25 | dollarid "@id" @@ 0.1;
+varindexed = dollarid arrayindex @@ 1.0;
+arrayindex = arrayindex indexdef @@ 0.2 | "" @@ 0.8;
+
+indexdef = "." dollarid @@ 0.2| "[" singlequotestring "]" @@ 0.3| "[" integer "]" @@ 0.1| "[" dollarid "]" @@ 0.15| "[" variable "]" @@ 0.05| "[" value_num "]" @@ 0.05| "[" expr "]" @@ 0.05 | "[]" @@ 0.1;
+
+modifierlist = modifierlist modifier @@ 0.2| modifier @@ 0.8;
+modifier = vert realmodifiers @@ 0.6 | vert realmodifierss vert realmodifiers @@ 0.4;
+
+lop = logop @@ 0.5 | slogop @@ 0.5;
+tlop = " is " ("not ")? ("odd "|"even "|"div ") "by ";
+
+doublequoted_with_quotes = "\"" "\"" @@ 0.1| "\"" doublequoted "\"" @@ 0.9;
+doublequoted = doublequoted doublequotedcontent @@ 0.2 | doublequotedcontent @@ 0.8;
+doublequotedcontent = "`" variable "`" @@ 0.2 | "`" expr "`" @@ 0.2 | dollarid @@ 0.05| "{" variable "}" @@ 0.2 | "{" expr "}" @@ 0.2| "{" tagbody "}" @@ 0.05 | "{" dollarid "}" @@ 0.05 | text @@ 0.05;
+dollarid = "$" name @@ 1.0;
+name = "name" @@ 0.1 | "last_name" @@ 0.1 |"price" @@ 0.1 |"owner" @@ 0.1 |"cost" @@ 0.1 |"php" @@ 0.1 |"user" @@ 0.1 |"pass" @@ 0.1 |"amount" @@ 0.1 |"template" @@ 0.1;
+text = /[0-9a-zA-Z_ <>`@$%^&]/* "<script>alert(" /[0-9a-zA-Z_ <>`@$%^&]/* ")</script>" /[0-9a-zA-Z_ <>`@$%^&]/* @@ 0.45 | /[0-9a-zA-Z_ <>`@$%^&]/* "<script>alert(" text ")</script>" /[0-9a-zA-Z_ <>`@$%^&]/* @@ 0.45 | /[0-9a-zA-Z_ <>`@$%^&]/* "<script>" /[0-9a-zA-Z_ <>`@$%^&]/ /[0-9a-zA-Z_ <>`@$%^&]/+ "</script>" /[0-9a-zA-Z_ <>`@$%^&]/* @@ 0.1;
+
+not = "!" @@ 0.5| "not " @@ 0.5;
+typecast = "(" type ")";
+type = "int" @@ 0.2| "bool" @@ 0.1 | "float" @@ 0.1 | "double" @@ 0.1 | "real" @@ 0.1 | "string" @@ 0.1 | "binary" @@ 0.1 | "array" @@ 0.1 | "object" @@ 0.1;
+incdec = "++" @@ 0.5| "--" @@ 0.5;
+hex = "0" /[x]/ /[0-9a-fA-F]/+;
+integer = /[0-9]/+;
+singlequotestring = "'" text "'";
+vert = "|";
+logop = " != " @@ 0.1| " = " @@ 0.1 | " == " @@ 0.1| " < " @@ 0.1| " <= " @@ 0.1 | " > " @@ 0.1 | " >= " @@ 0.1 | " && " @@ 0.1 | " || " @@ 0.2;
+slogop = " eq " @@ 0.1 | " ne " @@ 0.1 | " neq " @@ 0.1 | " gt " @@ 0.05 | " ge " @@ 0.1 | " gte " @@ 0.05 | " lt " @@ 0.05 | " le " @@ 0.1 | " lte " @@ 0.05| " mod " @@ 0.1| " and " @@ 0.1| " or " @@ 0.05| " xor " @@ 0.05;
+singlecond = " is " ("not ")? ("odd "|"even ");
+math = " * " @@ 0.2 | "**" @@ 0.2 | " % " @@ 0.2| " / " @@ 0.2 | " ^ " @@ 0.1| " & " @@ 0.1| " <><> " @@ 0.0;
+unimath = "+"  @@ 0.5| "-"  @@ 0.5;
+realmodifiers =  "escape:'html'" @@ 0.6 | "escape:'htmlall'" @@ 0.4;
+realmodifierss = capitalize @@ 0.0495 | "cat:'" text "'" @@ 0.0495| count_characters @@ 0.0495| "count_paragraphs" @@ 0.0495| "count_sentences" @@ 0.0495| "count_words" @@ 0.0495| "date_format" @@ 0.0495| "default:'" text "'" @@ 0.0495| indent @@ 0.0495| "lower" @@ 0.0495| "nl2br" @@ 0.0495| "regex_replace:\"/[" /[0-9a-zA-Z_ <>`@$%^&]/* "]/\":\"" text "\"" @@ 0.0495| "replace:'" /[0-9a-zA-Z_ <>`@$%^&]/* "':'" text "'" @@ 0.0495| spacify @@ 0.0495| string_format @@ 0.0495| strip @@ 0.0495| strip_tags @@ 0.0495| truncate @@ 0.0495| "upper" @@ 0.0495| wordwrap @@ 0.0495| "escape" @@ 0.01;
+capitalize = "capitalize" @@ 0.5| "capitalize:true" @@ 0.5;
+count_characters = "count_characters" @@ 0.5| "count_characters:true" @@ 0.5;
+indent = "indent" @@ 0.34 | "indent:" integer @@ 0.33 | "indent:" integer ":\"" text "\"" @@ 0.33;
+spacify = "spacify" @@ 0.5 | "spacify:\"" text "\"" @@ 0.5;
+string_format = "string_format:\"%d\"" @@ 0.5| "string_format:\"%." integer "f\"" @@ 0.5;
+strip = "strip" @@ 0.5| "strip:'" text "'" @@ 0.5;
+strip_tags = "strip_tags" @@ 0.5| "strip_tags:false" @@ 0.5;
+truncate = "truncate" @@ 0.2 | "truncate:" integer @@ 0.16 | "truncate:" integer @@ 0.16| "truncate:" integer ":\"" text "\"" @@ 0.16 | "truncate:" integer ":\"" text "\":true" @@ 0.16| "truncate:" integer ":\"" text "\":true:true" @@ 0.16;
+wordwrap = "wordwrap" @@ 0.25| "wordwrap:" integer @@ 0.25 | "wordwrap:" integer ":\"" text "\"" @@ 0.25| "wordwrap:" integer ":\"" text "\":true" @@ 0.25;
+vecs = "> <script>alert(4)</script>" | "<script>xyz onerror=alert(6);</script>" | "<script>1;a=eval;b=alert;a(b(/c/.source));</script>"

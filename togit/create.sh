@@ -1,0 +1,1 @@
+grammarinator-process SLexer.g4 SParser.g4 -o smartygram
