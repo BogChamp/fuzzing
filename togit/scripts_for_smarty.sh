@@ -3,3 +3,11 @@ cp code-coverage.php ./smarty/vendor/smarty/smarty/
 cp run.sh ./smarty/vendor/smarty/smarty/
 cp runcov.sh ./smarty/vendor/smarty/smarty/
 cp collect.sh ./smarty/vendor/smarty/smarty/
+cp create.sh ./smarty/vendor/smarty/smarty/
+cp grammarinator.sh ./smarty/vendor/smarty/smarty/
+cp script.sh ./smarty/vendor/smarty/smarty/
+cp SLexer.g4 ./smarty/vendor/smarty/smarty/
+cp SParser.g4 ./smarty/vendor/smarty/smarty/
+cp tribble.jar ./smarty/vendor/smarty/smarty/
+cp smarty7.bnf ./smarty/vendor/smarty/smarty/
+cp smarty6.bnf ./smarty/vendor/smarty/smarty/
